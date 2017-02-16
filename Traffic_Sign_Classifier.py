@@ -476,9 +476,9 @@ def train_network(logits, model_file, rate=0.001, epochs=100, batch_size=128, ke
             epoch_accuracy.append("{}: {:.3f}".format(i+1, validation_accuracy))
 
         ### Save model and epoch accuracy information
-        saver.save(sess, './{}'.format(model_file))
+        saver.save(sess, '../results/{}'.format(model_file))
 
-        with open('./{}.accuracy'.format(model_file), mode='w') as f:
+        with open('../results/{}.accuracy'.format(model_file), mode='w') as f:
             f.write('----------------------\n')
             f.write('      Parameters\n')
             f.write('----------------------\n')
