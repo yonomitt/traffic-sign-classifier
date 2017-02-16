@@ -449,8 +449,11 @@ def train_network(logits, model_file, rate=0.001, epochs=100, batch_size=128, ke
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
-        sess.run(tf.initialize_all_variables())
-        #sess.run(tf.global_variables_initializer())
+        if 'global_variables_initializer' in dir(tf):
+            # TensorFlow > 0.11
+            sess.run(tf.global_variables_initializer())
+        else:
+            sess.run(tf.initialize_all_variables())
 
         batch_count = int(math.ceil(n_examples/batch_size))
 
