@@ -136,7 +136,6 @@ def YUV_center():
     X_train = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_train]
     X_valid = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_valid]
     X_test = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_test]
-    print(X_train[0])
 
 def YUV():
 
@@ -145,7 +144,6 @@ def YUV():
     X_train = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_train]
     X_valid = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_valid]
     X_test = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_test]
-    print(X_train[0])
 
 
 # In[4]:
