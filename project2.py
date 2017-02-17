@@ -27,6 +27,7 @@ if __name__ == '__main__':
     from Traffic_Sign_Classifier import *
 
     if not args.network in dir():
+        print("Network '{}' NOT FOUND".format(args.network))
         sys.exit(-1)
 
     with open(args.training_set, mode='rb') as f:
