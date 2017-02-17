@@ -1,4 +1,7 @@
 
+### This script will allow me to run networks with different parameters on the fly,
+### facilitating quick experiments.
+
 import argparse
 import sys
 
