@@ -37,14 +37,14 @@ training_pp_file = "../data/traffic-signs-data/train_pp.p"
 ### Preprocessed balanced file
 training_pp_bal_file = "../data/traffic-signs-data/train_pp_bal.p"
 
-with open(training_file, mode='rb') as f:
-    train = pickle.load(f)
+#with open(training_file, mode='rb') as f:
+#    train = pickle.load(f)
 with open(validation_file, mode='rb') as f:
     valid = pickle.load(f)
 with open(testing_file, mode='rb') as f:
     test = pickle.load(f)
 
-X_train, y_train = train['features'], train['labels']
+#X_train, y_train = train['features'], train['labels']
 X_valid, y_valid = valid['features'], valid['labels']
 X_test, y_test = test['features'], test['labels']
 
@@ -497,10 +497,10 @@ def train_network(logits, model_file, rate=0.001, epochs=100, batch_size=128, ke
         print("Model saved: {}".format(model_file))
 
 
-train_network(LeNet(x), "LeNet_balancedjitter_e20", epochs=20)
-train_network(LeNet_dropout(x, keep_prob), "LeNet_dropout_balancedjitter_e100_kp0_5", epochs=100, keep_prob_val=0.5)
-train_network(Multi_Scale_LeNet(x), "Multi_Scale_LeNet_balancedjitter_e20", epochs=20)
-train_network(Multi_Scale_LeNet_dropout(x, keep_prob), "Multi_Scale_LeNet_dropout_balancedjitter_e100_kp0_5", epochs=100, keep_prob_val=0.5)
+#train_network(LeNet(x), "LeNet_balancedjitter_e20", epochs=20)
+#train_network(LeNet_dropout(x, keep_prob), "LeNet_dropout_balancedjitter_e100_kp0_5", epochs=100, keep_prob_val=0.5)
+#train_network(Multi_Scale_LeNet(x), "Multi_Scale_LeNet_balancedjitter_e20", epochs=20)
+#train_network(Multi_Scale_LeNet_dropout(x, keep_prob), "Multi_Scale_LeNet_dropout_balancedjitter_e100_kp0_5", epochs=100, keep_prob_val=0.5)
 
 
 # ---
