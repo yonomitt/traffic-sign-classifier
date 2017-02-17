@@ -123,6 +123,31 @@ print("Number of classes =", n_classes)
 
 # Use the code cell (or multiple code cells, if necessary) to implement the first step of your project.
 
+### TO TRY:
+### 1) YUV
+### 2) Grayscale
+
+import cv2
+
+def YUV_center():
+
+    global X_train, X_valid, X_test
+
+    X_train = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_train]
+    X_valid = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_valid]
+    X_test = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_test]
+    print(X_train[0])
+
+def YUV():
+
+    global X_train, X_valid, X_test
+
+    X_train = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_train]
+    X_valid = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_valid]
+    X_test = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_test]
+    print(X_train[0])
+
+
 # In[4]:
 
 ### Preprocess the data here. Preprocessing steps could include normalization, converting to grayscale, etc.
