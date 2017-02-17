@@ -5,7 +5,6 @@
 import argparse
 import sys
 
-from Traffic_Sign_Classifier import *
 
 
 class ArgParser(argparse.ArgumentParser):
@@ -24,6 +23,8 @@ if __name__ == '__main__':
     dummy = parser.add_argument('-t', '--training_set', type=str, help='Training set to use', default='../data/traffic-signs-data/train.p')
 
     args = parser.parse_args()
+
+    from Traffic_Sign_Classifier import *
 
     if not args.network in dir():
         sys.exit(-1)
