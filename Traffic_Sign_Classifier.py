@@ -37,7 +37,7 @@ training_pp_file = "../data/traffic-signs-data/train_pp.p"
 ### Preprocessed balanced file
 training_pp_bal_file = "../data/traffic-signs-data/train_pp_bal.p"
 
-with open(training_pp_bal_file, mode='rb') as f:
+with open(training_file, mode='rb') as f:
     train = pickle.load(f)
 with open(validation_file, mode='rb') as f:
     valid = pickle.load(f)
