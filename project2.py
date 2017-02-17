@@ -58,7 +58,7 @@ if __name__ == '__main__':
     keep_prob_val = max(min(args.keep_prob, 1.0), 0.01)
 
     if 'dropout' in args.network:
-        model_id_parts.append('k{}'.format(keep_prob_val))
+        model_id_parts.append('k{}'.format(str(keep_prob_val).replace('.', '_')))
         train_network(globals()[args.network](x, keep_prob), '_'.join(model_id_parts), epochs=args.epochs, keep_prob_val=keep_prob_val)
     else:
         train_network(globals()[args.network](x), '_'.join(model_id_parts), epochs=args.epochs)
