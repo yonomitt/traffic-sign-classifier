@@ -505,7 +505,7 @@ def train_network(logits, model_file, data, placeholders, rate=0.001, epochs=100
                 batch_x, batch_y = local_X_train[offset:end], local_y_train[offset:end]
                 sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: keep_prob_val})
 
-            validation_accuracy = evaluate(X_valid, y_valid, batch_size, accuracy_operation)
+            validation_accuracy = evaluate(X_valid, y_valid, placeholders, batch_size, accuracy_operation)
             epoch_accuracy.append("{}: {:.3f}".format(i+1, validation_accuracy))
 
         ### Save model and epoch accuracy information
