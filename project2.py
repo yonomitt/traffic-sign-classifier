@@ -35,12 +35,17 @@ if __name__ == '__main__':
         print("Preprocess function '{}' NOT FOUND".format(args.preprocess))
         sys.exit(-1)
 
-    with open(args.training_set, mode='rb') as f:
-        train = pickle.load(f)
+    X_train, y_train = read_data_file(args.training_set)
+    X_valid, y_valid = read_data_file(validation_file)
 
-    X_train, y_train = train['features'], train['labels']
+    image_shape = X_train[0].shape
 
-    n_examples = len(X_train)
+    x = tf.placeholder(tf.float32, (None,) + image_shape)
+    y = tf.placeholder(tf.int32, (None))
+
+    keep_prob = tf.placeholder(tf.float32)
+
+    placeholders = (x, y, keep_prob)
 
     # build model identifier
     model_id_parts = [args.network]
@@ -51,15 +56,18 @@ if __name__ == '__main__':
 
     if args.preprocess:
         model_id_parts.append(args.preprocess)
-        globals()[args.preprocess]()
+        X_train = globals()[args.preprocess](X_train)
+        X_valid = globals()[args.preprocess](X_valid)
 
     model_id_parts.append('e{}'.format(args.epochs))
 
     keep_prob_val = max(min(args.keep_prob, 1.0), 0.01)
 
+    data = (X_train, y_train, X_valid, y_valid)
+
     if 'dropout' in args.network:
         model_id_parts.append('k{}'.format(str(keep_prob_val).replace('.', '_')))
-        train_network(globals()[args.network](x, keep_prob), '_'.join(model_id_parts), epochs=args.epochs, keep_prob_val=keep_prob_val)
+        train_network(globals()[args.network](x, keep_prob), '_'.join(model_id_parts), data, placeholders, epochs=args.epochs, keep_prob_val=keep_prob_val)
     else:
-        train_network(globals()[args.network](x), '_'.join(model_id_parts), epochs=args.epochs)
+        train_network(globals()[args.network](x), '_'.join(model_id_parts), data, placeholders, epochs=args.epochs)
 

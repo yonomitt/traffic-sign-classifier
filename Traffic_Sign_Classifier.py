@@ -37,16 +37,23 @@ training_pp_file = "../data/traffic-signs-data/train_pp.p"
 ### Preprocessed balanced file
 training_pp_bal_file = "../data/traffic-signs-data/train_pp_bal.p"
 
-with open(training_file, mode='rb') as f:
-    train = pickle.load(f)
-with open(validation_file, mode='rb') as f:
-    valid = pickle.load(f)
-with open(testing_file, mode='rb') as f:
-    test = pickle.load(f)
+def read_data_file(filename):
 
-X_train, y_train = train['features'], train['labels']
-X_valid, y_valid = valid['features'], valid['labels']
-X_test, y_test = test['features'], test['labels']
+    with open(filename, mode='rb') as f:
+        data = pickle.load(f)
+
+    return data['features'], data['labels']
+
+#with open(training_file, mode='rb') as f:
+#    train = pickle.load(f)
+#with open(validation_file, mode='rb') as f:
+#    valid = pickle.load(f)
+#with open(testing_file, mode='rb') as f:
+#    test = pickle.load(f)
+
+#X_train, y_train = train['features'], train['labels']
+#X_valid, y_valid = valid['features'], valid['labels']
+#X_test, y_test = test['features'], test['labels']
 
 
 # ---
@@ -69,22 +76,22 @@ X_test, y_test = test['features'], test['labels']
 ### Replace each question mark with the appropriate value. 
 ### Use python, pandas or numpy methods rather than hard coding the results
 
-# TODO: Number of training examples
-n_train = len(y_train)
-
-# TODO: Number of testing examples.
-n_test = len(y_test)
-
-# TODO: What's the shape of an traffic sign image?
-image_shape = X_train[0].shape
-
-# TODO: How many unique classes/labels there are in the dataset.
-n_classes = len(set(y_train))
-
-print("Number of training examples =", n_train)
-print("Number of testing examples =", n_test)
-print("Image data shape =", image_shape)
-print("Number of classes =", n_classes)
+## TODO: Number of training examples
+#n_train = len(y_train)
+#
+## TODO: Number of testing examples.
+#n_test = len(y_test)
+#
+## TODO: What's the shape of an traffic sign image?
+#image_shape = X_train[0].shape
+#
+## TODO: How many unique classes/labels there are in the dataset.
+#n_classes = len(set(y_train))
+#
+#print("Number of training examples =", n_train)
+#print("Number of testing examples =", n_test)
+#print("Image data shape =", image_shape)
+#print("Number of classes =", n_classes)
 
 
 # ### Include an exploratory visualization of the dataset
@@ -128,30 +135,21 @@ print("Number of classes =", n_classes)
 ### 2) Grayscale
 
 import cv2
+import numpy as np
 
-def YUV_center():
+def YUV_center(imgs):
 
-    global X_train, X_valid, X_test
-
-    X_train = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_train]
-    X_valid = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_valid]
-    X_test = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in X_test]
+    return np.array([cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in imgs])
 
 def YUV():
 
-    global X_train, X_valid, X_test
-
-    X_train = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_train]
-    X_valid = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_valid]
-    X_test = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in X_test]
+    return np.array([cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in imgs])
 
 
 # In[4]:
 
 ### Preprocess the data here. Preprocessing steps could include normalization, converting to grayscale, etc.
 ### Feel free to use as many code cells as needed.
-
-n_examples = len(X_train)
 
 # ### Model Architecture
 
@@ -443,12 +441,13 @@ import sys
 from sklearn.utils import shuffle
 from tqdm import tqdm
 
-x = tf.placeholder(tf.float32, (None,) + image_shape)
-y = tf.placeholder(tf.int32, (None))
+#x = tf.placeholder(tf.float32, (None,) + image_shape)
+#y = tf.placeholder(tf.int32, (None))
+#
+#keep_prob = tf.placeholder(tf.float32)
 
-keep_prob = tf.placeholder(tf.float32)
-
-def evaluate(X_data, y_data, batch_size, accuracy_operation):
+def evaluate(X_data, y_data, placeholders, batch_size, accuracy_operation):
+    x, y, keep_prob = placeholders
     num_examples = len(X_data)
     total_accuracy = 0
     sess = tf.get_default_session()
@@ -459,7 +458,13 @@ def evaluate(X_data, y_data, batch_size, accuracy_operation):
     return total_accuracy / num_examples
 
 
-def train_network(logits, model_file, rate=0.001, epochs=100, batch_size=128, keep_prob_val=1.0):
+def train_network(logits, model_file, data, placeholders, rate=0.001, epochs=100, batch_size=128, keep_prob_val=1.0):
+
+    X_train, y_train, X_valid, y_valid = data
+    x, y, keep_prob = placeholders
+
+    n_classes = len(set(y_train))
+
     one_hot_y = tf.one_hot(y, n_classes)
 
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, one_hot_y)
@@ -470,6 +475,8 @@ def train_network(logits, model_file, rate=0.001, epochs=100, batch_size=128, ke
     correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
     accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     saver = tf.train.Saver()
+
+    n_examples = len(X_train)
 
     with tf.Session() as sess:
         if 'global_variables_initializer' in dir(tf):
