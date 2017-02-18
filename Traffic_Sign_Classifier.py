@@ -141,7 +141,7 @@ def YUV_center(imgs):
 
     return np.array([cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 - 0.5 for i in imgs])
 
-def YUV():
+def YUV(imgs):
 
     return np.array([cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in imgs])
 
