@@ -160,7 +160,7 @@ def CLAHE(imgs):
     ### http://docs.opencv.org/3.1.0/d5/daf/tutorial_py_histogram_equalization.html
 
     img_shape = imgs[0][:, :, 0].shape
-    clahe = cv2.createCLAHE()
+    clahe = cv2.createCLAHE(tileGridSize=(4, 4))
     yuvs = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) for i in imgs]
     return np.array([np.dstack((clahe.apply(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
 
