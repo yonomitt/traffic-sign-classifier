@@ -297,7 +297,7 @@ def LeNet_dropout(x, keep_prob):
     # Activation.
     conv2 = activation(conv2)
 
-    # Pooling
+    # Dropout
     conv2 = dropout(conv2, keep_prob)
 
     # Flatten. Input = 10x10x16. Output = 1600.
