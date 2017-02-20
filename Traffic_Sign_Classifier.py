@@ -145,6 +145,25 @@ def YUV(imgs):
 
     return np.array([cv2.cvtColor(i, cv2.COLOR_RGB2YUV) / 255 for i in imgs])
 
+def equalizeHist(imgs):
+
+    ### Contrast Limited Adaptive Histogram Equalization
+    ### http://docs.opencv.org/3.1.0/d5/daf/tutorial_py_histogram_equalization.html
+
+    img_shape = imgs[0][:, :, 0].shape
+    yuvs = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) for i in imgs]
+    return np.array([np.array((cv2.equalizHist(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
+
+def CLAHE(imgs):
+
+    ### Contrast Limited Adaptive Histogram Equalization
+    ### http://docs.opencv.org/3.1.0/d5/daf/tutorial_py_histogram_equalization.html
+
+    img_shape = imgs[0][:, :, 0].shape
+    clahe = cv2.createCLAHE()
+    yuvs = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) for i in imgs]
+    return np.array([np.array((clahe.apply(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
+
 
 # In[4]:
 
