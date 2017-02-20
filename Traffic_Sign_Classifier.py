@@ -265,6 +265,71 @@ def LeNet(x):
 
     return logits
 
+
+def LeNet3(x):
+
+    weights = {
+        'conv1' : tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
+        'conv2' : tf.Variable(tf.truncated_normal(shape=(3, 3, 6, 16), mean = mu, stddev = sigma)),
+        'conv3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 16, 32), mean = mu, stddev = sigma)),
+        'flat4' : tf.Variable(tf.truncated_normal(shape=(800, 200), mean = mu, stddev = sigma)),
+        'flat5' : tf.Variable(tf.truncated_normal(shape=(200, 84), mean = mu, stddev = sigma)),
+        'flat6' : tf.Variable(tf.truncated_normal(shape=(84, 43), mean = mu, stddev = sigma))
+    }
+    biases = {
+        'conv1' : tf.Variable(tf.zeros(6)),
+        'conv2' : tf.Variable(tf.zeros(16)),
+        'conv3' : tf.Variable(tf.zeros(32)),
+        'flat4' : tf.Variable(tf.zeros(200)),
+        'flat5' : tf.Variable(tf.zeros(84)),
+        'flat6' : tf.Variable(tf.zeros(43))
+    }
+
+    # Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
+    conv1 = conv2d(x, weights['conv1'], biases['conv1'])
+
+    # Activation
+    conv1 = activation(conv1)
+
+    # Pooling. Input = 28x28x6. Output = 14x14x6.
+    conv1 = maxpool2d(conv1, 2)
+
+    # Layer 2: Convolutional. Output = 12x12x16.
+    conv2 = conv2d(conv1, weights['conv2'], biases['conv2'])
+
+    # Activation.
+    conv2 = activation(conv2)
+
+    # Layer 3: Convolutional. Output = 10x10x32.
+    conv3 = conv2d(conv2, weights['conv3'], biases['conv3'])
+
+    # Activation.
+    conv3 = activation(conv3)
+
+    # Pooling. Input = 10x10x32. Output = 5x5x32.
+    conv3 = maxpool2d(conv3, 2)
+
+    # Flatten. Input = 5x5x32. Output = 800.
+    flat4 = tf.reshape(conv3, [-1, weights['flat4'].get_shape().as_list()[0]])
+
+    # Layer 4: Fully Connected. Input = 800. Output = 200.
+    flat4 = linear(flat4, weights['flat4'], biases['flat4'])
+
+    # Activation.
+    flat4 = activation(flat4)
+
+    # Layer 5: Fully Connected. Input = 200. Output = 84.
+    flat5 = linear(flat4, weights['flat5'], biases['flat5'])
+
+    # Activation.
+    flat5 = activation(flat5)
+
+    # Layer 6: Fully Connected. Input = 84. Output = 43.
+    logits = linear(flat5, weights['flat6'], biases['flat6'])
+
+    return logits
+
+
 def LeNet_dropout(x, keep_prob):
 
     weights = {
