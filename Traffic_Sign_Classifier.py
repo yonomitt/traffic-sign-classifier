@@ -380,6 +380,15 @@ def Multi_Scale_LeNet(x):
 
 def Multi_Scale_LeNet_dropout(x, keep_prob):
 
+    print("Don't waste time running this one")
+    return
+
+    ### Did not work as well as LeNet and LeNet dropout
+    ### Things to try:
+    ### 1) add max pooling back in
+    ### 2) add 3rd convolution layer
+    ### 3) dropout only the fully connected layers
+
     weights = {
         'conv1' : tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
         'conv2' : tf.Variable(tf.truncated_normal(shape=(9, 9, 6, 16), mean = mu, stddev = sigma)),
