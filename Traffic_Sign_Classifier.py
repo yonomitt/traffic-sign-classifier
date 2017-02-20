@@ -584,6 +584,70 @@ def Multi_Scale_LeNet_pooling_dropout(x, keep_prob):
     return logits
 
 
+def Multi_Scale_LeNet_pooling_dropout_fc(x, keep_prob):
+
+    weights = {
+        'conv1' : tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
+        'conv2' : tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean = mu, stddev = sigma)),
+        'flat3' : tf.Variable(tf.truncated_normal(shape=(1576, 400), mean = mu, stddev = sigma)),
+        'flat4' : tf.Variable(tf.truncated_normal(shape=(400, 100), mean = mu, stddev = sigma)),
+        'flat5' : tf.Variable(tf.truncated_normal(shape=(100, 43), mean = mu, stddev = sigma))
+    }
+    biases = {
+        'conv1' : tf.Variable(tf.zeros(6)),
+        'conv2' : tf.Variable(tf.zeros(16)),
+        'flat3' : tf.Variable(tf.zeros(400)),
+        'flat4' : tf.Variable(tf.zeros(100)),
+        'flat5' : tf.Variable(tf.zeros(43))
+    }
+
+    # Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
+    conv1 = conv2d(x, weights['conv1'], biases['conv1'])
+
+    # Activation
+    conv1 = activation(conv1)
+
+    # Pooling. Input = 28x28x6. Output = 14x14x6.
+    conv1 = maxpool2d(conv1, 2)
+
+    # Layer 2: Convolutional. Output = 10x10x16.
+    conv2 = conv2d(conv1, weights['conv2'], biases['conv2'])
+
+    # Activation.
+    conv2 = activation(conv2)
+
+    # Pooling. Input = 10x10x16. Output = 5x5x16.
+    conv2 = maxpool2d(conv2, 2)
+
+    # Flatten. Input = 14x14x6 + 5x5x16. Output = 1576.
+    flat_conv1 = tf.reshape(conv1, [-1, 14*14*6])
+    flat_conv2 = tf.reshape(conv2, [-1, 5*5*16])
+    flat3 = tf.concat(1, [flat_conv1, flat_conv2])
+
+    # Layer 3: Fully Connected. Input = 1576. Output = 400.
+    flat3 = linear(flat3, weights['flat3'], biases['flat3'])
+
+    # Activation.
+    flat3 = activation(flat3)
+
+    # Dropout
+    flat3 = dropout(flat3, keep_prob)
+
+    # Layer 4: Fully Connected. Input = 400. Output = 100.
+    flat4 = linear(flat3, weights['flat4'], biases['flat4'])
+
+    # Activation.
+    flat4 = activation(flat4)
+
+    # Dropout
+    flat4 = dropout(flat4, keep_prob)
+
+    # Layer 5: Fully Connected. Input = 100. Output = 43.
+    logits = linear(flat4, weights['flat5'], biases['flat5'])
+
+    return logits
+
+
 def Multi_Scale_LeNet_dropout(x, keep_prob):
 
     print("Don't waste time running this one")
