@@ -152,7 +152,7 @@ def equalizeHist(imgs):
 
     img_shape = imgs[0][:, :, 0].shape
     yuvs = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) for i in imgs]
-    return np.array([np.array((cv2.equalizeHist(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
+    return np.array([np.dstack((cv2.equalizeHist(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
 
 def CLAHE(imgs):
 
@@ -162,7 +162,7 @@ def CLAHE(imgs):
     img_shape = imgs[0][:, :, 0].shape
     clahe = cv2.createCLAHE()
     yuvs = [cv2.cvtColor(i, cv2.COLOR_RGB2YUV) for i in imgs]
-    return np.array([np.array((clahe.apply(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
+    return np.array([np.dstack((clahe.apply(i[:, :, 0]) / 255, np.zeros(img_shape), np.zeros(img_shape))) for i in yuvs])
 
 
 # In[4]:
