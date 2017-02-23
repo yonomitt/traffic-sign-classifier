@@ -193,8 +193,8 @@ activation = tf.nn.relu
 def linear(x, W, b):
     return tf.add(tf.matmul(x, W), b)
 
-def conv2d(x, W, b, strides=1):
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
+def conv2d(x, W, b, strides=1, padding='VALID'):
+    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding=padding)
     return tf.nn.bias_add(x, b)
 
 def dropout(x, keep_prob):
