@@ -1125,7 +1125,7 @@ def train_network(logits, model_file, data, placeholders, rate=0.001, epochs=100
                 sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: keep_prob_val})
 
             validation_accuracy = evaluate(X_valid, y_valid, placeholders, batch_size, accuracy_operation)
-            epoch_accuracy.append("{}: {:.3f}".format(i+1, validation_accuracy))
+            epoch_accuracy.append(validation_accuracy)
 
         ### Save model and epoch accuracy information
         saver.save(sess, '../results/{}'.format(model_file))
@@ -1139,10 +1139,10 @@ def train_network(logits, model_file, data, placeholders, rate=0.001, epochs=100
             f.write('Batch Size: {}\n'.format(batch_size))
             f.write('Keep Prob:  {}\n'.format(keep_prob_val))
             f.write('-----------------------\n')
-            f.write('\n'.join(epoch_accuracy))
+            f.write('\n'.join(["{:.4f}".format(a) for a in epoch_accuracy]))
             f.write('\n')
 
-        print("Accuracy: {} -> {}".format(epoch_accuracy[0], epoch_accuracy[-1]))
+        print("Accuracy: {:.4f} -> {:.4f}, MAX: {:.4f}".format(epoch_accuracy[0], epoch_accuracy[-1], max(epoch_accuracy)))
         print("Model saved: {}".format(model_file))
 
 
