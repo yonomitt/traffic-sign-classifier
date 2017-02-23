@@ -200,11 +200,11 @@ def conv2d(x, W, b, strides=1, padding='VALID'):
 def dropout(x, keep_prob):
     return tf.nn.dropout(x, keep_prob)
 
-def maxpool2d(x, k=2):
+def maxpool2d(x, k=2, s=2):
     return tf.nn.max_pool(
         x,
         ksize=[1, k, k, 1],
-        strides=[1, k, k, 1],
+        strides=[1, s, s, 1],
         padding='SAME')
 
 def gen_keep_prob():
