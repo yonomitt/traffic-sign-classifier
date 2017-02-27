@@ -18,6 +18,7 @@ if __name__ == '__main__':
 
     parser = ArgParser(description='Trains a traffic sign classifier', add_help=False)
     dummy = parser.add_argument('-n', '--network', type=str, help='Name of the network to run', default='LeNet')
+    dummy = parser.add_argument('-l', '--learning_rate', type=float, help='Learning rate to train with', default=0.001)
     dummy = parser.add_argument('-e', '--epochs', type=int, help='Number of epochs to train', default=20)
     dummy = parser.add_argument('-k', '--keep_prob', type=float, help='Keep probability when using dropout', default=1.0)
     dummy = parser.add_argument('-t', '--training_set', type=str, help='Training set to use', default='../data/traffic-signs-data/train.p')
@@ -60,6 +61,7 @@ if __name__ == '__main__':
         X_valid = globals()[args.preprocess](X_valid)
 
     model_id_parts.append('e{}'.format(args.epochs))
+    model_id_parts.append('l{}'.format(str(args.learning_rate).replace('.', '_')))
 
     keep_prob_val = max(min(args.keep_prob, 1.0), 0.01)
 
@@ -67,7 +69,7 @@ if __name__ == '__main__':
 
     if 'dropout' in args.network:
         model_id_parts.append('k{}'.format(str(keep_prob_val).replace('.', '_')))
-        train_network(globals()[args.network](x, keep_prob), '_'.join(model_id_parts), data, placeholders, epochs=args.epochs, keep_prob_val=keep_prob_val)
+        train_network(globals()[args.network](x, keep_prob), '_'.join(model_id_parts), data, placeholders, rate=args.learning_rate, epochs=args.epochs, keep_prob_val=keep_prob_val)
     else:
-        train_network(globals()[args.network](x), '_'.join(model_id_parts), data, placeholders, epochs=args.epochs)
+        train_network(globals()[args.network](x), '_'.join(model_id_parts), data, placeholders, rate=args.learning_rate, epochs=args.epochs)
 

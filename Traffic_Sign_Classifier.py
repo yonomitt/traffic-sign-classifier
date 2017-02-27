@@ -193,18 +193,18 @@ activation = tf.nn.relu
 def linear(x, W, b):
     return tf.add(tf.matmul(x, W), b)
 
-def conv2d(x, W, b, strides=1):
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
+def conv2d(x, W, b, strides=1, padding='VALID'):
+    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding=padding)
     return tf.nn.bias_add(x, b)
 
 def dropout(x, keep_prob):
     return tf.nn.dropout(x, keep_prob)
 
-def maxpool2d(x, k=2):
+def maxpool2d(x, k=2, s=2):
     return tf.nn.max_pool(
         x,
         ksize=[1, k, k, 1],
-        strides=[1, k, k, 1],
+        strides=[1, s, s, 1],
         padding='SAME')
 
 def gen_keep_prob():
@@ -648,6 +648,243 @@ def Multi_Scale_LeNet_pooling_dropout_fc(x, keep_prob):
     return logits
 
 
+def Inception_dropout_fc(x, keep_prob):
+
+    weights = {
+        'conv1' : tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
+
+        'conv2_a_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_b_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_b_3_3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 8, 32), mean = mu, stddev = sigma)),
+        'conv2_c_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_c_5_5' : tf.Variable(tf.truncated_normal(shape=(5, 5, 8, 16), mean = mu, stddev = sigma)),
+        'conv2_d_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+
+        'conv3_a_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_b_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_b_3_3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 80, 232), mean = mu, stddev = sigma)),
+        'conv3_c_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_c_5_5' : tf.Variable(tf.truncated_normal(shape=(5, 5, 80, 120), mean = mu, stddev = sigma)),
+        'conv3_d_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+
+        'full_conn1' : tf.Variable(tf.truncated_normal(shape=(8192, 1420), mean = mu, stddev = sigma)),
+        'full_conn2' : tf.Variable(tf.truncated_normal(shape=(1420, 250), mean = mu, stddev = sigma)),
+        'full_conn3' : tf.Variable(tf.truncated_normal(shape=(250, 43), mean = mu, stddev = sigma))
+    }
+
+    biases = {
+        'conv1' : tf.Variable(tf.zeros(6)),
+        'conv2_a_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_b_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_b_3_3' : tf.Variable(tf.zeros(32)),
+        'conv2_c_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_c_5_5' : tf.Variable(tf.zeros(16)),
+        'conv2_d_1_1' : tf.Variable(tf.zeros(8)),
+        'conv3_a_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_b_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_b_3_3' : tf.Variable(tf.zeros(232)),
+        'conv3_c_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_c_5_5' : tf.Variable(tf.zeros(120)),
+        'conv3_d_1_1' : tf.Variable(tf.zeros(80)),
+        'full_conn1' : tf.Variable(tf.zeros(1420)),
+        'full_conn2' : tf.Variable(tf.zeros(250)),
+        'full_conn3' : tf.Variable(tf.zeros(43))
+    }
+
+    # Layer 1: Normal Convolution. Input = 32x32x3. Output = 32x32x6
+    conv1 = conv2d(x, weights['conv1'], biases['conv1'], padding='SAME')
+    
+    # Activation
+    conv1 = activation(conv1)
+
+    # Pooling. Input = 32x32x6. Output 16x16x6.
+    conv1 = maxpool2d(conv1, 2)
+
+    
+    # Layer 2: Inception. Input 16x16x6. Output = 16x16x64
+    conv2_a = conv2d(conv1, weights['conv2_a_1_1'], biases['conv2_a_1_1'], padding='SAME')
+    conv2_b = conv2d(conv1, weights['conv2_b_1_1'], biases['conv2_b_1_1'], padding='SAME')
+    conv2_b = conv2d(conv2_b, weights['conv2_b_3_3'], biases['conv2_b_3_3'], padding='SAME')
+    conv2_c = conv2d(conv1, weights['conv2_c_1_1'], biases['conv2_c_1_1'], padding='SAME')
+    conv2_c = conv2d(conv2_c, weights['conv2_c_5_5'], biases['conv2_c_5_5'], padding='SAME')
+    conv2_d = maxpool2d(conv1, 3, 1)
+    conv2_d = conv2d(conv2_d, weights['conv2_d_1_1'], biases['conv2_d_1_1'], padding='SAME')
+
+    conv2 = tf.concat(3, [conv2_a, conv2_b, conv2_c, conv2_d])
+
+    # Activation
+    conv2 = activation(conv2)
+
+    # Pooling. Input = 16x16x64. Output 8x8x64.
+    conv2 = maxpool2d(conv2, 2)
+
+
+    # Layer 3: Inception. Input 8x8x64. Output = 8x8x512
+    conv3_a = conv2d(conv2, weights['conv3_a_1_1'], biases['conv3_a_1_1'], padding='SAME')
+    conv3_b = conv2d(conv2, weights['conv3_b_1_1'], biases['conv3_b_1_1'], padding='SAME')
+    conv3_b = conv2d(conv3_b, weights['conv3_b_3_3'], biases['conv3_b_3_3'], padding='SAME')
+    conv3_c = conv2d(conv2, weights['conv3_c_1_1'], biases['conv3_c_1_1'], padding='SAME')
+    conv3_c = conv2d(conv3_c, weights['conv3_c_5_5'], biases['conv3_c_5_5'], padding='SAME')
+    conv3_d = maxpool2d(conv2, 3, 1)
+    conv3_d = conv2d(conv3_d, weights['conv3_d_1_1'], biases['conv3_d_1_1'], padding='SAME')
+
+    conv3 = tf.concat(3, [conv3_a, conv3_b, conv3_c, conv3_d])
+
+    # Activation
+    conv3 = activation(conv3)
+
+    # Pooling. Input = 8x8x512. Output = 4x4x512
+    conv3 = maxpool2d(conv3, 2)
+
+
+    # Layer 4: Fully Connected. Input 8192. Output 1420
+    flat = tf.reshape(conv3, [-1, 4*4*512])
+    full1 = linear(flat, weights['full_conn1'], biases['full_conn1'])
+
+    # Activation
+    full1 = activation(full1)
+
+    # Dropout
+    full1 = dropout(full1, keep_prob)
+
+    # Layer 5: Fully Connected. Input 1420. Output 250
+    full2 = linear(full1, weights['full_conn2'], biases['full_conn2'])
+
+    # Activation
+    full2 = activation(full2)
+
+    # Dropout
+    full2 = dropout(full2, keep_prob)
+
+    # Layer 6: Fully Connected. Input 250. Output 43
+    logits = linear(full2, weights['full_conn3'], biases['full_conn3'])
+
+    return logits
+
+
+def Inception2_dropout_fc(x, keep_prob):
+
+    ### Based on Traffic Sign Classification Using Deep Inception Based Convolution Networks
+    ###   by Mrinhal Haloi
+
+    weights = {
+        'conv1' : tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean = mu, stddev = sigma)),
+
+        'conv2_a_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_b_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_b_3_3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 8, 32), mean = mu, stddev = sigma)),
+        'conv2_c_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_c_5_5' : tf.Variable(tf.truncated_normal(shape=(5, 5, 8, 16), mean = mu, stddev = sigma)),
+        'conv2_d_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 6, 8), mean = mu, stddev = sigma)),
+        'conv2_d_3_3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 8, 8), mean = mu, stddev = sigma)),
+
+        'conv3_a_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_b_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_b_3_3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 80, 232), mean = mu, stddev = sigma)),
+        'conv3_c_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_c_5_5' : tf.Variable(tf.truncated_normal(shape=(5, 5, 80, 120), mean = mu, stddev = sigma)),
+        'conv3_d_1_1' : tf.Variable(tf.truncated_normal(shape=(1, 1, 64, 80), mean = mu, stddev = sigma)),
+        'conv3_d_3_3' : tf.Variable(tf.truncated_normal(shape=(3, 3, 80, 80), mean = mu, stddev = sigma)),
+
+        'full_conn1' : tf.Variable(tf.truncated_normal(shape=(8192, 1420), mean = mu, stddev = sigma)),
+        'full_conn2' : tf.Variable(tf.truncated_normal(shape=(1420, 250), mean = mu, stddev = sigma)),
+        'full_conn3' : tf.Variable(tf.truncated_normal(shape=(250, 43), mean = mu, stddev = sigma))
+    }
+
+    biases = {
+        'conv1' : tf.Variable(tf.zeros(6)),
+        'conv2_a_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_b_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_b_3_3' : tf.Variable(tf.zeros(32)),
+        'conv2_c_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_c_5_5' : tf.Variable(tf.zeros(16)),
+        'conv2_d_1_1' : tf.Variable(tf.zeros(8)),
+        'conv2_d_3_3' : tf.Variable(tf.zeros(8)),
+        'conv3_a_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_b_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_b_3_3' : tf.Variable(tf.zeros(232)),
+        'conv3_c_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_c_5_5' : tf.Variable(tf.zeros(120)),
+        'conv3_d_1_1' : tf.Variable(tf.zeros(80)),
+        'conv3_d_3_3' : tf.Variable(tf.zeros(80)),
+        'full_conn1' : tf.Variable(tf.zeros(1420)),
+        'full_conn2' : tf.Variable(tf.zeros(250)),
+        'full_conn3' : tf.Variable(tf.zeros(43))
+    }
+
+    # Layer 1: Normal Convolution. Input = 32x32x3. Output = 32x32x6
+    conv1 = conv2d(x, weights['conv1'], biases['conv1'], padding='SAME')
+    
+    # Activation
+    conv1 = activation(conv1)
+
+    # Pooling. Input = 32x32x6. Output 16x16x6.
+    conv1 = maxpool2d(conv1, 2)
+
+    
+    # Layer 2: Inception. Input 16x16x6. Output = 16x16x64
+    conv2_a = conv2d(conv1, weights['conv2_a_1_1'], biases['conv2_a_1_1'], padding='SAME')
+    conv2_b = conv2d(conv1, weights['conv2_b_1_1'], biases['conv2_b_1_1'], padding='SAME')
+    conv2_b = conv2d(conv2_b, weights['conv2_b_3_3'], biases['conv2_b_3_3'], padding='SAME')
+    conv2_c = conv2d(conv1, weights['conv2_c_1_1'], biases['conv2_c_1_1'], padding='SAME')
+    conv2_c = conv2d(conv2_c, weights['conv2_c_5_5'], biases['conv2_c_5_5'], padding='SAME')
+    conv2_d = conv2d(conv1, weights['conv2_d_1_1'], biases['conv2_d_1_1'], padding='SAME')
+    conv2_d = conv2d(conv2_d, weights['conv2_d_3_3'], biases['conv2_d_3_3'], padding='SAME')
+    conv2_d = maxpool2d(conv2_d, 3, 1)
+
+    conv2 = tf.concat(3, [conv2_a, conv2_b, conv2_c, conv2_d])
+
+    # Activation
+    conv2 = activation(conv2)
+
+    # Pooling. Input = 16x16x64. Output 8x8x64.
+    conv2 = maxpool2d(conv2, 2)
+
+
+    # Layer 3: Inception. Input 8x8x64. Output = 8x8x512
+    conv3_a = conv2d(conv2, weights['conv3_a_1_1'], biases['conv3_a_1_1'], padding='SAME')
+    conv3_b = conv2d(conv2, weights['conv3_b_1_1'], biases['conv3_b_1_1'], padding='SAME')
+    conv3_b = conv2d(conv3_b, weights['conv3_b_3_3'], biases['conv3_b_3_3'], padding='SAME')
+    conv3_c = conv2d(conv2, weights['conv3_c_1_1'], biases['conv3_c_1_1'], padding='SAME')
+    conv3_c = conv2d(conv3_c, weights['conv3_c_5_5'], biases['conv3_c_5_5'], padding='SAME')
+    conv3_d = conv2d(conv2, weights['conv3_d_1_1'], biases['conv3_d_1_1'], padding='SAME')
+    conv3_d = conv2d(conv3_d, weights['conv3_d_3_3'], biases['conv3_d_3_3'], padding='SAME')
+    conv3_d = maxpool2d(conv3_d, 3, 1)
+
+    conv3 = tf.concat(3, [conv3_a, conv3_b, conv3_c, conv3_d])
+
+    # Activation
+    conv3 = activation(conv3)
+
+    # Pooling. Input = 8x8x512. Output = 4x4x512
+    conv3 = maxpool2d(conv3, 2)
+
+
+    # Layer 4: Fully Connected. Input 8192. Output 1420
+    flat = tf.reshape(conv3, [-1, 4*4*512])
+    full1 = linear(flat, weights['full_conn1'], biases['full_conn1'])
+
+    # Activation
+    full1 = activation(full1)
+
+    # Dropout
+    full1 = dropout(full1, keep_prob)
+
+    # Layer 5: Fully Connected. Input 1420. Output 250
+    full2 = linear(full1, weights['full_conn2'], biases['full_conn2'])
+
+    # Activation
+    full2 = activation(full2)
+
+    # Dropout
+    full2 = dropout(full2, keep_prob)
+
+    # Layer 6: Fully Connected. Input 250. Output 43
+    logits = linear(full2, weights['full_conn3'], biases['full_conn3'])
+
+    return logits
+
+
 def Multi_Scale_LeNet3_pooling_dropout_fc(x, keep_prob):
 
     weights = {
@@ -888,7 +1125,7 @@ def train_network(logits, model_file, data, placeholders, rate=0.001, epochs=100
                 sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: keep_prob_val})
 
             validation_accuracy = evaluate(X_valid, y_valid, placeholders, batch_size, accuracy_operation)
-            epoch_accuracy.append("{}: {:.3f}".format(i+1, validation_accuracy))
+            epoch_accuracy.append(validation_accuracy)
 
         ### Save model and epoch accuracy information
         saver.save(sess, '../results/{}'.format(model_file))
@@ -902,10 +1139,10 @@ def train_network(logits, model_file, data, placeholders, rate=0.001, epochs=100
             f.write('Batch Size: {}\n'.format(batch_size))
             f.write('Keep Prob:  {}\n'.format(keep_prob_val))
             f.write('-----------------------\n')
-            f.write('\n'.join(epoch_accuracy))
+            f.write('\n'.join(["{:.4f}".format(a) for a in epoch_accuracy]))
             f.write('\n')
 
-        print("Accuracy: {} -> {}".format(epoch_accuracy[0], epoch_accuracy[-1]))
+        print("Accuracy: {:.4f} -> {:.4f}, MAX: {:.4f}".format(epoch_accuracy[0], epoch_accuracy[-1], max(epoch_accuracy)))
         print("Model saved: {}".format(model_file))
 
 
