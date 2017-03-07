@@ -19,14 +19,12 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/visualization.jpg "Visualization"
-[image2]: ./examples/grayscale.jpg "Grayscaling"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./examples/placeholder.png "Traffic Sign 1"
-[image5]: ./examples/placeholder.png "Traffic Sign 2"
-[image6]: ./examples/placeholder.png "Traffic Sign 3"
-[image7]: ./examples/placeholder.png "Traffic Sign 4"
-[image8]: ./examples/placeholder.png "Traffic Sign 5"
+[image1]: ./images/training_example_histogram.png "Histogram"
+[image2]: ./images/collage_of_training_examples.png "Collage"
+[image3]: ./images/clahed_data0.png "Example CLAHE 0"
+[image4]: ./images/clahed_data0.png "Example CLAHE 1"
+[image5]: ./images/clahed_data0.png "Example CLAHE 2"
+[image6]: ./images/clahed_data0.png "Example CLAHE 3"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -36,7 +34,7 @@ The goals / steps of this project are the following:
 
 ####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
 
-You're reading it! and here is a link to my [project code](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
+You're reading it! and here is a link to my [project code](https://github.com/yonomitt/traffic-sign-classifier/blob/master/Traffic_Sign_Classifier.ipynb)
 
 ###Data Set Summary & Exploration
 
@@ -44,21 +42,36 @@ You're reading it! and here is a link to my [project code](https://github.com/ud
 
 The code for this step is contained in the second code cell of the IPython notebook.  
 
-I used the pandas library to calculate summary statistics of the traffic
-signs data set:
+I used basic python methods to calculate the data set statistics with the exception of the image size. For that I used the convenient shape parameter on the numpy array.
 
-* The size of training set is ?
-* The size of test set is ?
-* The shape of a traffic sign image is ?
-* The number of unique classes/labels in the data set is ?
+However, my answers for the statistics vary slightly in that I used an enhanced dataset. I created a script to add more training examples by playing with the translation, scale, and rotation of the provided examples. See [tools/preprocess_data.py](https://github.com/yonomitt/traffic-sign-classifier/blob/master/tools/preprocess_data.py).
+
+This script allowed me to increase the training set from the original 34,799 to one of 452,387 (a factor of 13). Additionally, I also created a balanced training set which had the same number of training examples for every class, as I was worried my classifier would not work as well if it focused on the classes with more data. The balanced data set had 2,340 examples for each of the 43 classes for a total of 100,620 training examples.
+
+In the end, I ended up using the full (452,387) training set to train my classifier because it consistently beat out the other two for accuracy (despite taking significantly longer to train).
+
+* The size of **my** training set is 452,387
+* The size of the test set is 12,630
+* The shape of a traffic sign image is (32, 32, 3)
+* The number of unique classes/labels in the data set is 43
 
 ####2. Include an exploratory visualization of the dataset and identify where the code is in your code file.
 
 The code for this step is contained in the third code cell of the IPython notebook.  
 
-Here is an exploratory visualization of the data set. It is a bar chart showing how the data ...
+My first go at exploring the data set was to output a histogram of the classes.
 
-![alt text][image1]
+![Histogram of training examples of the 43 classes][image1]
+
+This shocked me and led me to create the balanced data set, which ensured the same number of training examples per class. While this balanced data set did better than the default data set for training the network, it ultimately was inferior to the full data set I created.
+
+The next thing I wanted to see was an example image from each class.
+
+![Collage of a single image from each of the 43 classes][image2]
+
+I generated this image after several rounds of experimentation. Prior to seeing this image, I had been using full color images from the data set. 
+
+This visualization showed me how extreme the lighting conditions vary from one image to another and made me realize that color was probably not going to be very helpful. 
 
 ###Design and Test a Model Architecture
 
@@ -66,15 +79,25 @@ Here is an exploratory visualization of the data set. It is a bar chart showing 
 
 The code for this step is contained in the fourth code cell of the IPython notebook.
 
-As a first step, I decided to convert the images to grayscale because ...
+I initially did no preprocessing (besides expanding the data set through translation, rotation, and scale transformations). I intended to try grayscale conversions and other experiements, but first wanted to play with creating an actual network (isn't that the fun part?)
 
-Here is an example of a traffic sign image before and after grayscaling.
+Once I generated the 2nd visualization image (see previous section), I realized I needed to prioritize data preprocessing if I wanted to get any decent results.
 
-![alt text][image2]
+I initially converted the images to YUV and centered the images and got slight improvements over the full color inputs. While researching various grayscaling techniques, I came across page on OpenCV's documentation site describing [histogram equalization](http://docs.opencv.org/3.1.0/d5/daf/tutorial_py_histogram_equalization.html)
 
-As a last step, I normalized the image data because ...
+This led me to try histogram equalization and Contrast Limited Adaptive Histogram Equalization (CLAHE) on my data set. I found CLAHE far superior to my other preprocessing techniques and adopted it from then on.
+
+Here is an example of some traffic sign images before and after CLAHE.
+
+![Before and after CLAHE][image3]
+![Before and after CLAHE][image4]
+![Before and after CLAHE][image5]
+![Before and after CLAHE][image6]
+
 
 ####2. Describe how, and identify where in your code, you set up training, validation and testing data. How much data was in each set? Explain what techniques were used to split the data into these sets. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, identify where in your code, and provide example images of the additional data)
+
+#TODO#
 
 The code for splitting the data into training and validation sets is contained in the fifth code cell of the IPython notebook.  
 
@@ -93,21 +116,35 @@ The difference between the original data set and the augmented data set is the f
 
 ####3. Describe, and identify where in your code, what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-The code for my final model is located in the seventh cell of the ipython notebook. 
+The code for my final model is located in the eigth cell of the ipython notebook. 
 
-My final model consisted of the following layers:
+I tried a number of different models (cells 6 - 11), including:
+
+- LeNet
+- a modified version of LeNet
+- a Multi Scale LeNet based on a [paper I read](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf)
+- a modified version of this Multi Scale LeNet
+- Inception
+
+The final model I went with was LeNet3_dropout_fc, which is a modified LeNet with 3 convolution layers and dropout **only** on the fully connected layers:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
+| Convolution 5x5     	| 1x1 stride, valid padding, outputs 28x28x6 	|
 | RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
-| Convolution 3x3	    | etc.      									|
-| Fully connected		| etc.        									|
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
+| Max pooling	      	| 2x2 stride,  outputs 14x14x6 				|
+| Convolution 3x3	    | 1x1 stride, valid padding, outputs 12x12x16	|
+| RELU					|												|
+| Convolution 3x3	    | 1x1 stride, valid padding, outputs 10x10x32	|
+| RELU					|												|
+| Max pooling	      	| 2x2 stride,  outputs 5x5x32 				|
+| Fully connected		| outputs 200     									|
+| RELU					|												|
+| Fully connected		| outputs 84     									|
+| RELU					|												|
+| Fully connected		| outputs 43     									|
+| Softmax				|        									|
  
 
 
