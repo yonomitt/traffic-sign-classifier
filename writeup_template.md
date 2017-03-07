@@ -147,15 +147,41 @@ The final model I went with was LeNet3_dropout_fc, which is a modified LeNet wit
 | Softmax				|        									|
  
 
-
 ####4. Describe how, and identify where in your code, you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-The code for training the model is located in the eigth cell of the ipython notebook. 
+#TODO#
 
-To train the model, I used an ....
+To train the model, I minimized the mean of the softmax cross entropy between the logits and the labels. I believe this is fairly standard and was in the lesson.
 
 ####5. Describe the approach taken for finding a solution. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
+My personality is that of a person who likes to know the effect of each change. I tend to like to change one variable and see what happens. Due to this nature, I created some scripts external to the notebook that would allow me to rapidly try many, **many** experiments.
+
+---
+
+**Traffic_Sign_Classifier.py**
+
+A converted version of the notebook, restructured to make it easier to train different networks
+
+**project2.py**
+
+A wrapper script that allows me to run a single experiment by passing in parameters for the model via the command line.
+
+**train_the_ocean.sh**
+
+A shell script that allowed me to run many experiments in sequence. It currently only has my last two, but at it's peak, I would have 16 different experiments running via this script.
+
+**tools/analyze_results.py**
+
+A script to help me analyze the results from my many experiments.
+
+---
+
+After running my expermients (I didn't run everything I wanted, I ran out of time... one of the reasons this project is late), I chose one to run through the notebook and use for my project.
+
+One unfortunate note. During my experimenting, I happened on several models and parameters that would give me over 99% accuracy on the validation set. Unfortunately, I could not reproduce this when finalizing my notebook.
+
+#TODO#
 The code for calculating the accuracy of the model is located in the ninth cell of the Ipython notebook.
 
 My final model results were:
