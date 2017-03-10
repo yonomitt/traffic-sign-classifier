@@ -317,7 +317,7 @@ Here are the results of the prediction:
 ![alt text][known4_pred]
 ![alt text][known5_pred]
 
-The model was able to correctly classify all 6 of the known traffic signs for an accuracy of 100%.
+The model was able to correctly classify all 6 of the known traffic signs for an accuracy of 100% this is compared to 97.22% for the test set. Granted, this was a small sample size, but I would have expected between 5 and 6 of the new images to be correctly classified and that is correct.
 
 ####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction and identify where in your code softmax probabilities were outputted. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
